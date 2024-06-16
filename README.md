@@ -1,20 +1,16 @@
-# zkdrops
-Distributing an airdrop to users is simple if you already have their public keys, but protocols may want to do so according to off-chain activities. Although one could request addresses from users over a public or private channel, many users would prefer not to disclose their public keys. 
-
-This repo demonstrates a strategy for distributing tokens where users can provide a message (known as the 'commitment') over a public channel and later claim their portion of the airdrop by providing a zero-knowledge proof that they belong in the Merkle tree. Claiming tokens in this manner mixes them with all other users entitled to an airdrop, protecting their anonymity.
+# zksubscribe
+Creating a newsletter subscription list on chain needs to preserve the privacy of subscribers. Additionally, we improve upon existing email list management systems by using hashed emails, commitments and zk proofs to create a secure and privacy preserving way for user to subscribe to multiple mail lists. An off chain service with hashed emails will be required when the smart contract is called to send an email to subscribers.
 
 A self-contained library for generating claim proofs and interacting with these contracts can be found at [a16z/zkdrops/zkdrops-lib](zkdrops-lib/), and an example front-end can be found at [a16z/zkdrops/client-ex](client-ex/).
 
-The smart contract for distributions (`zkdrops-contracts/contracts/PrivateAirdrop.sol`) includes an `updateRoot` function which allows the owner to modify the Merkle tree after launch, but can be made immutable by removing that function if desired.
+The smart contract for distributions is forked from the a16z repo (`zkdrops-contracts/contracts/PrivateAirdrop.sol`) includes an `updateRoot` function which allows the owner to modify the Merkle tree after launch, but can be made immutable by removing that function if desired.
 
 ## How This Works
-- Users create a `key` and a `secret`, and concatenate `hash(key + secret)` to create the `commitment`.
+- Users type in their email addresses, and we concatenate `hash(nonce + email)` to create the `commitment`.
 - The `commitment` can then be transmitted across a public or private channel without leaking information.
 - An admin assembles a Merkle tree of these `commitments` and deploys the smart contracts.
 - Users can then redeem with a zero-knoweldge proof that they belong in the Merkle tree without revealing which `commitment` is associated with their public key.
 - Note that on-chain verification requires ~350k gas.
-
-![zk proof diagram](https://github.com/a16z/zkdrops/blob/main/imgs/merkle_proof.jpg?raw=true)
 
 ## Installation
 - `gh repo clone a16z/zkdrops`
