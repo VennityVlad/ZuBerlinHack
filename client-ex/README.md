@@ -6,7 +6,7 @@ Edited client from zkdrops repo to reflect using email to create commitment and 
 
 Proof computation takes 20-60s in the browser depending on the machine.
 
-![Fe-ex-picture](imgs/fe-ex.png)
+<img width="919" alt="image" src="https://github.com/VennityVlad/ZuBerlinHack/assets/44687547/97c9eb0b-11e1-4a39-8252-ccb7de9d29e0">
 
 
 
