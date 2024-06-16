@@ -1,5 +1,6 @@
 import { MerkleTree, generateProofCallData, poseidon1, poseidon2, toHex } from 'zkdrops-lib';
 import { providers, Contract, ethers, BigNumber } from 'ethers';
+import { sha3 } from 'web3-utils';
 
 import * as AIRDROP_JSON from "../ABIs/PrivateAirdrop.json";
 import * as ERC20_JSON from "@openzeppelin/contracts/build/contracts/ERC20PresetFixedSupply.json";
@@ -15,6 +16,7 @@ export default function IndexPage() {
     erc20Address: "",
     erc20Balance: 0,
     proof: "",
+    emailAddress: "",
     loading: false
   })
 
@@ -23,7 +25,7 @@ export default function IndexPage() {
   }
 
   let handleCalcProof = () => {
-    calculateProof(state.key, state.secret, state, setState);
+    calculateProof(state.emailAddress, state, setState);
   }
 
   let handleCollect = () => {
@@ -40,14 +42,7 @@ export default function IndexPage() {
       <div className="row">
         <div className="col-2"></div>
         <div className="col text-center">
-          <h1>ZK Merkle Airdrop FE</h1>
-        </div>
-      </div>
-
-      <div className="row mb-2">
-        <div className="col-2"></div>
-        <div className="col text-center">
-          <button className="btn btn-success" onClick={handleLocalHostEth}>Collect some ETH</button>
+          <h1>ZK Subscriptions</h1>
         </div>
       </div>
 
@@ -57,28 +52,7 @@ export default function IndexPage() {
 
 
           <div className="card">
-            <div className="card-header">
-              Query Balances {state.erc20Balance}
-            </div>
-            <div className="card-body">
-              <div className="input-group">
-                <div className="input-group-prepend">
-                  <div className="input-group-text">
-                    ERC20 Token Address
-                  </div>
-                </div>
-                <input
-                  type="text"
-                  name="erc20Address"
-                  className="form-control"
-                  value={state.erc20Address}
-                  onChange={evt => setState({...state, [evt.target.name]: evt.target.value})}
-                  />
-              </div>
-            </div>
-            <div className="card-footer">
-              <button className="btn btn-secondary" onClick={handleBalanceCheck}>Query Wallet ERC20 Balance</button>
-            </div>
+ 
           </div>
 
 
@@ -86,45 +60,18 @@ export default function IndexPage() {
           <div className="mt-3">
             <div className="card">
               <div className="card-header">
-                Calculate proof and collect airdrop
+                Calculate Proof and Subscribe
               </div>
 
               <div className="card-body">
 
-                <div className="input-group mt-2">
-                  <div className="input-group-prepend">
-                    <div className="input-group-text">
-                      Key
-                    </div>
-                  </div>
-                  <input
-                    type="text"
-                    name="key"
-                    className="form-control"
-                    value={state.key}
-                    onChange={evt => setState({...state, [evt.target.name]: evt.target.value})}
-                    />
-                </div>
+
+
 
                 <div className="input-group mt-2">
                   <div className="input-group-prepend">
                     <div className="input-group-text">
-                     Secret 
-                    </div>
-                  </div>
-                  <input
-                    type="text"
-                    name="secret"
-                    className="form-control"
-                    value={state.secret}
-                    onChange={evt => setState({...state, [evt.target.name]: evt.target.value})}
-                    />
-                </div>
-
-                <div className="input-group mt-2">
-                  <div className="input-group-prepend">
-                    <div className="input-group-text">
-                      PrivateAirdrop Contract Address
+                      Subscriber Contract Address
                     </div>
                   </div>
                   <input
@@ -135,12 +82,26 @@ export default function IndexPage() {
                     onChange={evt => setState({...state, [evt.target.name]: evt.target.value})}
                     />
                 </div>
+                <div className="input-group mt-2">
+                  <div className="input-group-prepend">
+                    <div className="input-group-text">
+                      Email Address
+                    </div>
+                  </div>
+                  <input
+                    type="text"
+                    name="emailAddress"
+                    className="form-control"
+                    value={state.emailAddress}
+                    onChange={evt => setState({...state, [evt.target.name]: evt.target.value})}
+                    />
+                </div>
 
               </div>
 
               <div className="card-footer"> 
                 <button className="btn btn-primary" onClick={handleCalcProof}>Calculate Proof</button>
-                <button className="btn btn-warning ml-2" onClick={handleCollect}>Collect Drop</button>
+                <button className="btn btn-warning ml-2" onClick={handleCollect}>Subscribe</button>
               </div>
             </div>
           </div>
@@ -179,9 +140,9 @@ export default function IndexPage() {
   )
 }
 
-async function calculateProof(key, secret, state, setState) {
-  if (state.key === '' || state.secret === '')  {
-    alert("Either key or secret are missing!")
+async function calculateProof(emailAddress, state, setState) {
+  if (state.emailAddress === '')  {
+    alert("Email address is missing!")
     return
   }
   setState({...state, loading:true})
@@ -192,8 +153,8 @@ async function calculateProof(key, secret, state, setState) {
   let signer = provider.getSigner();
   let address = await signer.getAddress();
 
-  // Compute a commitment locally
-  let computedCommitment = toHex(await poseidon2(BigInt(key), BigInt(secret)));
+  // Compute a commitment locally using the hashed email address
+  let computedCommitment = toHex(await poseidon1(BigInt(sha3(emailAddress))));
 
   // Load files and run proof locally
   let DOMAIN = "http://localhost:3000";

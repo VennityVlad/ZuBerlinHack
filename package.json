@@ -12,5 +12,8 @@
 		"deploy": "cd zkdrops-contracts && yarn hardhat run --network localhost ./scripts/deploy.ts",
 		"start-client": "cd client-ex && yarn dev",
 		"test": "cd zkdrops-contracts && yarn test"
+	},
+	"dependencies": {
+		"web3-utils": "^4.3.0"
 	}
 }
